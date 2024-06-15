@@ -39,7 +39,7 @@
 /**
  * Play a note.
  *
- * @param pitch The pitch of the played note.
+ * @param pitch The pitch of the played note, in hertz.
  * @param duration The duration of the played note, in milliseconds.
  */
 #define BEEP_NOTE(pitch, duration)						\
