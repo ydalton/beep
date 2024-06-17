@@ -32,10 +32,12 @@
 	}									\
 
 #define BEEP_WRITE \
-	if (sizeof(e) != write(fd, &e, sizeof(e))) {				\
-		perror("write:");						\
-		return -1;							\
-	}									\
+	do {									\
+		if (sizeof(e) != write(fd, &e, sizeof(e))) {			\
+			perror("write:");					\
+			return -1;						\
+		}								\
+	} while(0);
 
 /**
  * Play a note.
@@ -43,26 +45,35 @@
  * @param pitch The pitch of the played note, in hertz.
  * @param duration The duration of the played note, in milliseconds.
  */
-#define BEEP_NOTE(pitch, duration)						\
-	e.value = pitch;							\
-	BEEP_WRITE								\
-	usleep(duration * 1000);						\
-	e.value = 0;								\
-	BEEP_WRITE
+#define BEEP_NOTE(pitch, duration) \
+	do {									\
+		e.value = pitch;						\
+		BEEP_WRITE							\
+		usleep(duration * 1000);					\
+	} while(0);
 
+#define BEEP_OFF \
+	do {									\
+		e.value = 0;							\
+		BEEP_WRITE							\
+	} while(0);
 /**
  * Rest for a duration.
  *
  * @param duration The duration of the rest.
  */
 #define BEEP_REST(duration) \
-	usleep(duration * 1000);						\
+	do {									\
+		BEEP_OFF							\
+		usleep(duration * 1000);					\
+	} while(0);
 
 /**
  * Called at the end of the program.
  */
 #define BEEP_END \
-	return EXIT_SUCCESS; \
+		BEEP_OFF							\
+		return EXIT_SUCCESS; 						\
 	}
 
 #endif
