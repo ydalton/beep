@@ -17,21 +17,26 @@
 /**
  * Called at the start of note
  */
-#define BEEP_INIT \
-	int main(void)								\
-	{									\
-	struct input_event e = {						\
-		.type = EV_SND,							\
-		.code = SND_TONE,						\
-		.value = 0,							\
-	};									\
-	int fd = open(BEEP_PCSPKR_DEV, O_WRONLY);				\
-	if(fd == -1) {								\
-		fprintf(stderr, "Can't open PC speaker, do you have one?\n");	\
-		return EXIT_FAILURE;						\
-	}									\
 
-#define BEEP_WRITE \
+static int fd = -1;
+
+static struct input_event e = {
+	.type = EV_SND,
+	.code = SND_TONE,
+	.value = 0,
+};
+
+static int inline beep_init()
+{
+	fd = open(BEEP_PCSPKR_DEV, O_WRONLY);
+	if(fd == -1) {
+		fprintf(stderr, "Can't open PC speaker, do you have one?\n");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+#define BEEP_WRITE() \
 	do {									\
 		if (sizeof(e) != write(fd, &e, sizeof(e))) {			\
 			perror("write:");					\
@@ -45,17 +50,19 @@
  * @param pitch The pitch of the played note, in hertz.
  * @param duration The duration of the played note, in milliseconds.
  */
-#define BEEP_NOTE(pitch, duration) \
-	do {									\
-		e.value = pitch;						\
-		BEEP_WRITE							\
-		usleep(duration * 1000);					\
-	} while(0);
 
-#define BEEP_OFF \
+static int beep_note(float pitch, float duration)
+{
+	e.value = pitch;
+	BEEP_WRITE()
+	usleep(duration * 1000);
+	return 0;
+}
+
+#define BEEP_OFF() \
 	do {									\
 		e.value = 0;							\
-		BEEP_WRITE							\
+		BEEP_WRITE()							\
 	} while(0);
 /**
  * Rest for a duration.
@@ -64,17 +71,17 @@
  */
 #define BEEP_REST(duration) \
 	do {									\
-		BEEP_OFF							\
+		BEEP_OFF()							\
 		usleep(duration * 1000);					\
 	} while(0);
 
 /**
  * Called at the end of the program.
  */
-#define BEEP_END \
-		BEEP_OFF							\
-		return EXIT_SUCCESS; 						\
-	}
+static int beep_end()
+{
+	BEEP_OFF()
+}
 
 /* You can define your own pitch base */
 #ifndef BEEP_NOTE_BASE
@@ -104,10 +111,22 @@
 /**
  * Make a pitch
  *
- * @param pitch One of the BEEP_NOTE_* macros.
+ * @param pitch The name of the note, for example 'E' or 'B_FLAT'.
  * @param octave The octave of the pitch
  */
 #define BEEP_PITCH(pitch, octave) \
-	(BEEP_NOTE_BASE * BEEP_NOTE_D_SHARP * pitch * (1 << octave) / (1 << 5))
+	((BEEP_NOTE_BASE * BEEP_NOTE_D_SHARP * (BEEP_NOTE_ ## pitch)) 		\
+	 * (1 << octave) / (1 << 5))
+
+/**
+ * Make a note with a pitch and octave
+ *
+ * @param pitch The name of the note, for example 'E' or 'B_FLAT'.
+ * @param octave The octave of the pitch
+ */
+#define BEEP_PITCHED_NOTE(pitch, octave, duration) \
+	do {									\
+		beep_note(BEEP_PITCH(pitch, octave), duration);			\
+	} while(0);
 
 #endif
