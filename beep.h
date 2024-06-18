@@ -36,11 +36,15 @@ static int inline beep_init()
 	return EXIT_SUCCESS;
 }
 
+/*
+ * If we encounter a write error, then there's no point in continuing the
+ * program afterwards.
+ */
 #define BEEP_WRITE() \
 	do {									\
 		if (sizeof(e) != write(fd, &e, sizeof(e))) {			\
 			perror("write:");					\
-			return -1;						\
+			exit(EXIT_FAILURE);					\
 		}								\
 	} while(0);
 
@@ -50,7 +54,6 @@ static int inline beep_init()
  * @param pitch The pitch of the played note, in hertz.
  * @param duration The duration of the played note, in milliseconds.
  */
-
 static int beep_note(float pitch, float duration)
 {
 	e.value = pitch;
@@ -88,6 +91,7 @@ static int beep_end()
 #define BEEP_NOTE_BASE		440
 #endif
 
+/* These are the pitches relative to note C */
 #define BEEP_NOTE_C		1
 #define BEEP_NOTE_C_SHARP	1.0595
 #define BEEP_NOTE_D 		1.1225
@@ -101,7 +105,7 @@ static int beep_end()
 #define BEEP_NOTE_A_SHARP	1.7818
 #define BEEP_NOTE_B		1.8878
 
-/* enharmonic pitches */
+/* Enharmonic pitches */
 #define BEEP_NOTE_D_FLAT	BEEP_NOTE_C_SHARP
 #define BEEP_NOTE_E_FLAT	BEEP_NOTE_D_SHARP
 #define BEEP_NOTE_G_FLAT	BEEP_NOTE_F_SHARP
