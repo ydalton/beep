@@ -1,3 +1,4 @@
 #+title: PC speaker header-only library for C
 
-WIP
+See the ~examples/~ folder for example programs on how to use the
+library.
