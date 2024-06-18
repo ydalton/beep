@@ -2,3 +2,8 @@
 
 See the ~examples/~ folder for example programs on how to use the
 library.
+
+To compile:
+#+begin_example
+gcc -I .. paganini.c
+#+end_example
