@@ -76,4 +76,38 @@
 		return EXIT_SUCCESS; 						\
 	}
 
+/* You can define your own pitch base */
+#ifndef BEEP_NOTE_BASE
+#define BEEP_NOTE_BASE		440
+#endif
+
+#define BEEP_NOTE_C		1
+#define BEEP_NOTE_C_SHARP	1.0595
+#define BEEP_NOTE_D 		1.1225
+#define BEEP_NOTE_D_SHARP	1.1892
+#define BEEP_NOTE_E		1.2600
+#define BEEP_NOTE_F		1.3348
+#define BEEP_NOTE_F_SHARP	1.4142
+#define BEEP_NOTE_G		1.4983
+#define BEEP_NOTE_G_SHARP	1.5874
+#define BEEP_NOTE_A		1.6818
+#define BEEP_NOTE_A_SHARP	1.7818
+#define BEEP_NOTE_B		1.8878
+
+/* enharmonic pitches */
+#define BEEP_NOTE_D_FLAT	BEEP_NOTE_C_SHARP
+#define BEEP_NOTE_E_FLAT	BEEP_NOTE_D_SHARP
+#define BEEP_NOTE_G_FLAT	BEEP_NOTE_F_SHARP
+#define BEEP_NOTE_A_FLAT	BEEP_NOTE_G_SHARP
+#define BEEP_NOTE_B_FLAT	BEEP_NOTE_A_SHARP
+
+/**
+ * Make a pitch
+ *
+ * @param pitch One of the BEEP_NOTE_* macros.
+ * @param octave The octave of the pitch
+ */
+#define BEEP_PITCH(pitch, octave) \
+	(BEEP_NOTE_BASE * BEEP_NOTE_D_SHARP * pitch * (1 << octave) / (1 << 5))
+
 #endif
